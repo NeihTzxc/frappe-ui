@@ -263,16 +263,18 @@ const sanitizeOptions = (options: AutocompleteOption[]) => {
 }
 
 const filterOptions = (options: Option[]) => {
-  if (!query.value) return options
-  return options.filter((option) => {
-    return (
-      option.label.toLowerCase().includes(query.value.trim().toLowerCase()) ||
-      option.value
-        .toString()
-        .toLowerCase()
-        .includes(query.value.trim().toLowerCase())
-    )
-  })
+  if (!query.value) return options.slice(0, 6);
+  return options
+    .filter((option) => {
+      return (
+        option.label.toLowerCase().includes(query.value.trim().toLowerCase()) ||
+        option.value
+          .toString()
+          .toLowerCase()
+          .includes(query.value.trim().toLowerCase())
+      );
+    })
+    .slice(0, 6);
 }
 
 const selectedValue = computed({
@@ -366,7 +368,14 @@ watch(
   () => showOptions.value,
   () => {
     if (showOptions.value) {
-      nextTick(() => searchInput.value?.$el.focus())
+      nextTick(() => {
+        const inputElement = searchInput.value?.$el || searchInput.value;
+        if (inputElement) {
+          inputElement.focus({
+            preventScroll: true,
+          });
+        }
+      })
     }
   },
 )
